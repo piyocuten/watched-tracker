@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CineTrack - Cinema Tracker</title>
+  <link rel="icon" type="image/png" href="popcorn.png">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <!-- Google Fonts: Fredoka & Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind Configuration for Cute Theme -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+            quicksand: ['Quicksand', 'sans-serif'],
+          },
+          colors: {
+            cute: {
+              pink: '#FF94B9',
+              lightpink: '#FFF0F5',
+              softbg: '#FFF8FA',
+              purple: '#B39DDB',
+              mint: '#80CBC4',
+              yellow: '#FFE082',
+              peach: '#FFAB91',
+              darkbg: '#13111C',
+              darkcard: '#1E1A29',
+              darkborder: '#2D273E',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .font-heading {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    /* Light & Dark Theme Custom Variables */
+    html.light body {
+      background-color: #FFF8FA;
+      color: #4A3E56;
+    }
+
+    html.dark body {
+      background-color: #13111C;
+      color: #E2DAF0;
+    }
+
+    /* Cute Bouncy Card Styling */
+    .cute-card {
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .cute-card:hover {
+      transform: translateY(-3px) scale(1.01);
+    }
+
+    html.light .cute-card {
+      background-color: #FFFFFF;
+      border: 2px solid #FFE4ED;
+      box-shadow: 0 8px 20px -6px rgba(255, 148, 185, 0.15);
+    }
+    html.dark .cute-card {
+      background-color: #1E1A29;
+      border: 2px solid #2D273E;
+      box-shadow: 0 8px 25px -6px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Custom Cute Checkbox */
+    .cute-checkbox {
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    html.light .cute-checkbox {
+      border: 2px solid #FFB2D0;
+      background-color: #FFF0F5;
+    }
+    html.dark .cute-checkbox {
+      border: 2px solid #4A3E56;
+      background-color: #262035;
+    }
+    .cute-checkbox:checked {
+      background-color: #FF94B9 !important;
+      border-color: #FF94B9 !important;
+      transform: scale(1.1);
+    }
+    .cute-checkbox:checked::after {
+      content: '✨';
+      position: absolute;
+      font-size: 13px;
+      top: -2px;
+      left: 1px;
+    }
+
+    /* Cute Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #FFB2D0;
+      border-radius: 99px;
+    }
+    html.dark ::-webkit-scrollbar-thumb {
+      background: #3B3252;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-pink-300 selection:text-pink-900">
+
+  <!-- Header Bar -->
+  <header class="border-b border-pink-100 dark:border-purple-950/60 bg-white/80 dark:bg-cute-darkcard/80 sticky top-0 z-30 backdrop-blur-md transition-colors">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-18 py-3 flex items-center justify-between">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-400 to-purple-400 flex items-center justify-center text-white shadow-md shadow-pink-300/40 dark:shadow-none text-xl animate-bounce">
+          🍿
+        </div>
+        <div>
+          <h1 class="font-heading text-xl font-bold tracking-wide text-pink-500 dark:text-pink-300 flex items-center gap-1.5">
+            CineTrack
+          </h1>
+          <p class="text-[11px] font-semibold text-slate-400 dark:text-purple-300/60 -mt-0.5">Jurnal Film & Anime Imut Tanpa Ribet</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons (Add & Mode Switch) -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        
+        <!-- Add Item Button -->
+        <button onclick="openAddModal()" class="bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white font-heading font-semibold px-3.5 py-2 rounded-2xl transition-all shadow-lg shadow-pink-300/50 dark:shadow-none text-xs sm:text-sm flex items-center gap-1.5 active:scale-95">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Tambah</span>
+        </button>
+
+        <!-- Light/Dark Mode Switcher -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="w-10 h-10 rounded-2xl bg-pink-50 dark:bg-purple-900/40 border-2 border-pink-200 dark:border-purple-800 text-pink-500 dark:text-yellow-300 flex items-center justify-center transition-all hover:rotate-12 active:scale-90" title="Ubah Mode Layar">
+          <i id="themeIcon" class="fa-solid fa-sun text-base"></i>
+        </button>
+
+      </div>
+
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex-grow w-full">
+
+    <!-- Ringkasan Statistik Cute -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-6">
+      
+      <div class="cute-card p-4 rounded-3xl flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center text-lg">
+          🍿
+        </div>
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 dark:text-purple-300/60 uppercase tracking-wider">Lagi Nonton</p>
+          <p id="statWatching" class="font-heading text-xl font-bold text-amber-500 dark:text-amber-300">0</p>
+        </div>
+      </div>
+
+      <div class="cute-card p-4 rounded-3xl flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-pink-100 dark:bg-pink-950/60 text-pink-500 flex items-center justify-center text-lg">
+          🧺
+        </div>
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 dark:text-purple-300/60 uppercase tracking-wider">Watchlist</p>
+          <p id="statWatchlist" class="font-heading text-xl font-bold text-pink-500 dark:text-pink-300">0</p>
+        </div>
+      </div>
+
+      <div class="cute-card p-4 rounded-3xl flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-500 flex items-center justify-center text-lg">
+          ✅
+        </div>
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 dark:text-purple-300/60 uppercase tracking-wider">Selesai</p>
+          <p id="statCompleted" class="font-heading text-xl font-bold text-emerald-500 dark:text-emerald-300">0</p>
+        </div>
+      </div>
+
+      <div class="cute-card p-4 rounded-3xl flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-950/60 text-purple-500 flex items-center justify-center text-lg">
+          ⭐
+        </div>
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 dark:text-purple-300/60 uppercase tracking-wider">Rating</p>
+          <p id="statAvgRating" class="font-heading text-xl font-bold text-purple-500 dark:text-purple-300">0.0</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Filter Tabs & Search Controls -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">
+      
+      <!-- Category Tabs -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <button id="tabAll" onclick="setTab('all')" class="px-4 py-2 rounded-2xl font-heading text-xs font-semibold transition-all whitespace-nowrap bg-pink-500 text-white shadow-md shadow-pink-200 dark:shadow-none">
+          Semua <span id="countAll" class="ml-1 text-[11px] opacity-80">0</span>
+        </button>
+        <button id="tabWatching" onclick="setTab('watching')" class="px-4 py-2 rounded-2xl font-heading text-xs font-semibold transition-all whitespace-nowrap bg-white dark:bg-cute-darkcard text-slate-500 dark:text-purple-200 hover:text-pink-500">
+          🍿 Sedang Ditonton <span id="countWatching" class="ml-1 text-[11px] opacity-80">0</span>
+        </button>
+        <button id="tabWatchlist" onclick="setTab('watchlist')" class="px-4 py-2 rounded-2xl font-heading text-xs font-semibold transition-all whitespace-nowrap bg-white dark:bg-cute-darkcard text-slate-500 dark:text-purple-200 hover:text-pink-500">
+          🎀 Watchlist <span id="countWatchlist" class="ml-1 text-[11px] opacity-80">0</span>
+        </button>
+        <button id="tabCompleted" onclick="setTab('completed')" class="px-4 py-2 rounded-2xl font-heading text-xs font-semibold transition-all whitespace-nowrap bg-white dark:bg-cute-darkcard text-slate-500 dark:text-purple-200 hover:text-pink-500">
+          ✨ Sudah Ditonton <span id="countCompleted" class="ml-1 text-[11px] opacity-80">0</span>
+        </button>
+      </div>
+
+      <!-- Search Input & Type Filter -->
+      <div class="flex items-center gap-2">
+        <div class="relative flex-grow sm:w-48">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-pink-300 dark:text-purple-400 text-xs"></i>
+          <input type="text" id="searchInput" placeholder="Cari judul..." oninput="renderApp()" class="w-full bg-white dark:bg-cute-darkcard border-2 border-pink-100 dark:border-purple-900/60 rounded-2xl pl-9 pr-3 py-1.5 text-xs text-slate-700 dark:text-purple-100 placeholder-pink-300 dark:placeholder-purple-400/50 focus:border-pink-400 focus:outline-none transition" />
+        </div>
+
+        <select id="typeFilter" onchange="renderApp()" class="bg-white dark:bg-cute-darkcard border-2 border-pink-100 dark:border-purple-900/60 rounded-2xl px-3 py-1.5 text-xs text-slate-700 dark:text-purple-100 focus:border-pink-400 focus:outline-none font-semibold">
+          <option value="all">Semua Tipe</option>
+          <option value="Anime">Anime</option>
+          <option value="Film">Film</option>
+          <option value="Series">Series</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Dynamic Item List Container -->
+    <div id="itemList" class="space-y-3">
+      <!-- Dynamic Cute Cards Inserted via JS -->
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-pink-100 dark:border-purple-950/60 py-6 text-center text-xs font-semibold text-slate-400 dark:text-purple-400/60">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p class="flex items-center gap-1">Dibuat oleh Piyo Comel<span class="text-pink-500 animate-pulse">💖</span> CineCute ✨</p>
+      <p>2026. All Right Serve</p>
+    </div>
+  </footer>
+
+  <!-- MODAL 1: TAMBAH / EDIT ITEM -->
+  <div id="addModal" class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-cute-darkcard rounded-3xl max-w-md w-full p-6 border-2 border-pink-200 dark:border-purple-800 shadow-2xl relative">
+      
+      <button onclick="closeModal('addModal')" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-pink-50 dark:bg-purple-900/40 text-pink-400 dark:text-purple-300 hover:bg-pink-100 flex items-center justify-center text-sm transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h2 id="modalFormTitle" class="font-heading text-lg font-bold text-pink-500 dark:text-pink-300 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Tambah Film Baru
+      </h2>
+
+      <form id="itemForm" onsubmit="handleFormSubmit(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="formItemId" />
+
+        <div>
+          <label class="block font-heading font-semibold text-slate-500 dark:text-purple-300 mb-1">JUDUL *</label>
+          <input type="text" id="formTitle" required placeholder="mis. One Piece / Kimi No Na wa" class="w-full bg-pink-50/50 dark:bg-purple-950/40 border-2 border-pink-100 dark:border-purple-800/80 rounded-2xl px-3.5 py-2 text-slate-700 dark:text-purple-100 focus:border-pink-400 focus:outline-none font-medium" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-heading font-semibold text-slate-500 dark:text-purple-300 mb-1">STATUS</label>
+            <select id="formStatus" onchange="toggleFormFields()" class="w-full bg-pink-50/50 dark:bg-purple-950/40 border-2 border-pink-100 dark:border-purple-800/80 rounded-2xl px-3 py-2 text-slate-700 dark:text-purple-100 focus:border-pink-400 focus:outline-none font-medium">
+              <option value="watching">🍿 Sedang Ditonton</option>
+              <option value="watchlist">🧺 Watchlist</option>
+              <option value="completed">✅️ Sudah Ditonton</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-heading font-semibold text-slate-500 dark:text-purple-300 mb-1">TIPE</label>
+            <select id="formType" class="w-full bg-pink-50/50 dark:bg-purple-950/40 border-2 border-pink-100 dark:border-purple-800/80 rounded-2xl px-3 py-2 text-slate-700 dark:text-purple-100 focus:border-pink-400 focus:outline-none font-medium">
+              <option value="Anime">Anime</option>
+              <option value="Film">Film</option>
+              <option value="Series">Series</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label id="formEpisodeLabel" class="block font-heading font-semibold text-slate-500 dark:text-purple-300 mb-1">PROGRESS / TIPE</label>
+            <input type="text" id="formEpisode" placeholder="mis. Eps. 487 / 8 Episode / Film" class="w-full bg-pink-50/50 dark:bg-purple-950/40 border-2 border-pink-100 dark:border-purple-800/80 rounded-2xl px-3.5 py-2 text-slate-700 dark:text-purple-100 focus:border-pink-400 focus:outline-none font-medium" />
+          </div>
+
+          <div>
+            <label class="block font-heading font-semibold text-slate-500 dark:text-purple-300 mb-1">TANGGAL / TAHUN</label>
+            <input type="text" id="formDate" placeholder="mis. 5 Okt 2026 / 2026" class="w-full bg-pink-50/50 dark:bg-purple-950/40 border-2 border-pink-100 dark:border-purple-800/80 rounded-2xl px-3.5 py-2 text-slate-700 dark:text-purple-100 focus:border-pink-400 focus:outline-none font-medium" />
+          </div>
+        </div>
+
+        <div id="pauseFieldWrapper">
+          <label class="block font-heading font-semibold text-slate-500 dark:text-purple-300 mb-1">PAUSE DI</label>
+          <input type="text" id="formPause" placeholder="mis. end atau (00:20:00)" class="w-full bg-pink-50/50 dark:bg-purple-950/40 border-2 border-pink-100 dark:border-purple-800/80 rounded-2xl px-3.5 py-2 text-slate-700 dark:text-purple-100 focus:border-pink-400 focus:outline-none font-medium" />
+        </div>
+
+        <div id="ratingFieldWrapper" class="hidden">
+          <label class="block font-heading font-semibold text-slate-500 dark:text-purple-300 mb-1">RATING BINTANG</label>
+          <select id="formRating" class="w-full bg-pink-50/50 dark:bg-purple-950/40 border-2 border-pink-100 dark:border-purple-800/80 rounded-2xl px-3 py-2 text-amber-500 font-bold focus:border-pink-400 focus:outline-none">
+            <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+            <option value="4">⭐⭐⭐⭐ (4/5)</option>
+            <option value="3">⭐⭐⭐ (3/5)</option>
+            <option value="2">⭐⭐ (2/5)</option>
+            <option value="1">⭐ (1/5)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-heading font-semibold text-slate-500 dark:text-purple-300 mb-1">CATATAN KECIL (OPSIONAL)</label>
+          <textarea id="formNotes" rows="2" placeholder="Catatan lucu/kesan singkat..." class="w-full bg-pink-50/50 dark:bg-purple-950/40 border-2 border-pink-100 dark:border-purple-800/80 rounded-2xl px-3.5 py-2 text-slate-700 dark:text-purple-100 focus:border-pink-400 focus:outline-none font-medium"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3">
+          <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 rounded-2xl text-slate-400 hover:text-slate-600 dark:hover:text-purple-200 font-heading font-semibold text-xs">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-2xl bg-gradient-to-r from-pink-400 to-rose-400 text-white font-heading font-bold text-xs shadow-md shadow-pink-200 dark:shadow-none hover:scale-105 active:scale-95 transition">
+            Simpan ✨
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: EDIT PAUSE TIMESTAMP -->
+  <div id="quickPauseModal" class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-cute-darkcard rounded-3xl max-w-xs w-full p-5 border-2 border-amber-200 dark:border-amber-900/60 shadow-2xl relative">
+      <h3 class="font-heading text-sm font-bold text-amber-500 mb-0.5 flex items-center gap-1.5">
+        <span>⏱️</span> Edit Pause Time
+      </h3>
+      <p id="quickPauseTitle" class="text-xs text-slate-500 dark:text-purple-300 font-semibold mb-3">Judul Item</p>
+
+      <form id="quickPauseForm" onsubmit="handleQuickPauseSubmit(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="quickPauseItemId" />
+        <div>
+          <label class="block font-heading text-[11px] text-slate-400 mb-1">PAUSE DI</label>
+          <input type="text" id="quickPauseInput" required placeholder="mis. (00:20:00) atau end" class="w-full bg-amber-50/50 dark:bg-amber-950/30 border-2 border-amber-100 dark:border-amber-900/50 rounded-2xl px-3.5 py-2 text-amber-900 dark:text-amber-200 font-bold focus:border-amber-400 focus:outline-none" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('quickPauseModal')" class="px-3.5 py-1.5 rounded-2xl text-slate-400 font-heading text-xs">Batal</button>
+          <button type="submit" class="px-4 py-1.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-heading font-bold text-xs shadow-md shadow-amber-200 dark:shadow-none">Update ✨</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: CHECKLIST RATING PROMPT -->
+  <div id="ratingModal" class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-cute-darkcard rounded-3xl max-w-xs w-full p-5 border-2 border-emerald-200 dark:border-emerald-900/60 shadow-2xl relative">
+      <h3 class="font-heading text-sm font-bold text-emerald-500 mb-0.5 flex items-center gap-1.5">
+        <span>🎉</span> Yaaay! Selesai Nonton!
+      </h3>
+      <p id="ratingTitle" class="text-xs text-slate-500 dark:text-purple-300 font-semibold mb-3">Judul Item</p>
+
+      <form id="ratingForm" onsubmit="handleRatingSubmit(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="ratingItemId" />
+        <div>
+          <label class="block font-heading text-[11px] text-slate-400 mb-1">KASIH RATING BINTANG</label>
+          <select id="ratingSelect" class="w-full bg-emerald-50/50 dark:bg-emerald-950/30 border-2 border-emerald-100 dark:border-emerald-900/50 rounded-2xl px-3 py-2 text-amber-500 font-bold focus:border-emerald-400 focus:outline-none">
+            <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+            <option value="4" selected>⭐⭐⭐⭐ (4/5)</option>
+            <option value="3">⭐⭐⭐ (3/5)</option>
+            <option value="2">⭐⭐ (2/5)</option>
+            <option value="1">⭐ (1/5)</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('ratingModal')" class="px-3.5 py-1.5 rounded-2xl text-slate-400 font-heading text-xs">Batal</button>
+          <button type="submit" class="px-4 py-1.5 rounded-2xl bg-emerald-400 hover:bg-emerald-500 text-emerald-950 font-heading font-bold text-xs shadow-md shadow-emerald-200 dark:shadow-none">Selesai ✨</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-white dark:bg-cute-darkcard border-2 border-pink-300 dark:border-purple-700 text-slate-700 dark:text-purple-100 text-xs font-semibold px-4 py-3 rounded-2xl shadow-2xl hidden flex items-center gap-2.5 transform transition-all duration-300">
+    <span id="toastIcon" class="text-base">✨</span>
+    <span id="toastMsg">Pesan Notifikasi</span>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       PRE-POPULATED DATASET (Mandatory Exact User Prompt Data)
+       ========================================================================== */
+    const DEFAULT_ITEMS = [
+      {
+        id: "item-op-487",
+        title: "One Piece",
+        type: "Anime",
+        status: "watching",
+        episode: "Eps.487",
+        pause: "end",
+        date: "5 Okt 2026",
+        rating: 5,
+        notes: "Sengit banget episode ini!"
+      },
+      {
+        id: "item-sd-4",
+        title: "Sakamoto Days",
+        type: "Anime",
+        status: "watching",
+        episode: "Eps.4",
+        pause: "(00:20:00)",
+        date: "3 Okt 2026",
+        rating: 4,
+        notes: "Lucu dan seru!"
+      },
+      {
+        id: "item-got-s4",
+        title: "Game of Thrones : S4 (2026)",
+        type: "Series",
+        status: "watchlist",
+        episode: "8 Episode",
+        pause: "-",
+        date: "2026",
+        rating: 0,
+        notes: ""
+      },
+      {
+        id: "item-knw-2021",
+        title: "Kimi No Na wa (2021)",
+        type: "Film",
+        status: "watchlist",
+        episode: "Film",
+        pause: "-",
+        date: "2021",
+        rating: 0,
+        notes: ""
+      },
+      {
+        id: "item-got-s2",
+        title: "Game of Thrones : S2 (2022)",
+        type: "Series",
+        status: "completed",
+        episode: "8 Episode",
+        pause: "Selesai",
+        date: "2022",
+        rating: 5,
+        notes: "Seru pol!"
+      },
+      {
+        id: "item-sabb-2026",
+        title: "Semua Akan Baik Baik Saja (2026)",
+        type: "Film",
+        status: "completed",
+        episode: "Film",
+        pause: "Selesai",
+        date: "2026",
+        rating: 4,
+        notes: "Menyentuh hati."
+      }
+    ];
+
+    let items = [];
+    let activeTab = 'all';
+
+    // Application Initialization
+    window.onload = function() {
+      initTheme();
+      loadData();
+      renderApp();
+    };
+
+    /* Theme Management (Light & Dark Mode) */
+    function initTheme() {
+      const savedTheme = localStorage.getItem('cinecute_theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        updateThemeIcon(true);
+      } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+        updateThemeIcon(false);
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        localStorage.setItem('cinecute_theme', 'light');
+        updateThemeIcon(false);
+        showToast("Switch ke Light Mode", "☀️");
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('cinecute_theme', 'dark');
+        updateThemeIcon(true);
+        showToast("Switch ke Midnight Mode", "🌙");
+      }
+    }
+
+    function updateThemeIcon(isDark) {
+      const icon = document.getElementById('themeIcon');
+      if (isDark) {
+        icon.className = "fa-solid fa-moon text-base text-yellow-300";
+      } else {
+        icon.className = "fa-solid fa-sun text-base text-amber-500";
+      }
+    }
+
+    /* LocalStorage Handlers */
+    function loadData() {
+      const saved = localStorage.getItem('cinecute_items_data');
+      if (saved) {
+        try {
+          items = JSON.parse(saved);
+        } catch(e) {
+          items = [...DEFAULT_ITEMS];
+        }
+      } else {
+        items = [...DEFAULT_ITEMS];
+        saveData();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('cinecute_items_data', JSON.stringify(items));
+      updateStats();
+    }
+
+    /* Dynamic Stats Calculation */
+    function updateStats() {
+      const watching = items.filter(i => i.status === 'watching').length;
+      const watchlist = items.filter(i => i.status === 'watchlist').length;
+      const completed = items.filter(i => i.status === 'completed');
+
+      document.getElementById('statWatching').innerText = watching;
+      document.getElementById('statWatchlist').innerText = watchlist;
+      document.getElementById('statCompleted').innerText = completed.length;
+
+      document.getElementById('countAll').innerText = items.length;
+      document.getElementById('countWatching').innerText = watching;
+      document.getElementById('countWatchlist').innerText = watchlist;
+      document.getElementById('countCompleted').innerText = completed.length;
+
+      if (completed.length > 0) {
+        const sum = completed.reduce((acc, curr) => acc + (Number(curr.rating) || 0), 0);
+        document.getElementById('statAvgRating').innerText = (sum / completed.length).toFixed(1);
+      } else {
+        document.getElementById('statAvgRating').innerText = '0.0';
+      }
+    }
+
+    /* Tab Filter Navigation */
+    function setTab(tab) {
+      activeTab = tab;
+      const tabs = ['all', 'watching', 'watchlist', 'completed'];
+      
+      tabs.forEach(t => {
+        const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (t === tab) {
+          btn.className = "px-4 py-2 rounded-2xl font-heading text-xs font-semibold transition-all whitespace-nowrap bg-pink-500 text-white shadow-md shadow-pink-200 dark:shadow-none";
+        } else {
+          btn.className = "px-4 py-2 rounded-2xl font-heading text-xs font-semibold transition-all whitespace-nowrap bg-white dark:bg-cute-darkcard text-slate-500 dark:text-purple-200 hover:text-pink-500";
+        }
+      });
+
+      renderApp();
+    }
+
+    /* Render Items Grid/List */
+    function renderApp() {
+      updateStats();
+
+      const search = (document.getElementById('searchInput').value || '').toLowerCase();
+      const typeFilter = document.getElementById('typeFilter').value;
+
+      const filtered = items.filter(item => {
+        const matchesTab = (activeTab === 'all') || (item.status === activeTab);
+        const matchesSearch = item.title.toLowerCase().includes(search) || 
+                              (item.episode && item.episode.toLowerCase().includes(search));
+        const matchesType = (typeFilter === 'all') || (item.type === typeFilter);
+        return matchesTab && matchesSearch && matchesType;
+      });
+
+      const container = document.getElementById('itemList');
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 border-2 border-dashed border-pink-200 dark:border-purple-900 rounded-3xl text-pink-400 dark:text-purple-300 font-heading text-xs">
+            <div class="text-3xl mb-2">💤</div>
+            Belum ada judul di sini nih~
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        container.appendChild(createCuteCard(item));
+      });
+    }
+
+    function createCuteCard(item) {
+      const card = document.createElement('div');
+      card.className = "cute-card p-4 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3";
+
+      // Badges Styling based on Status & Type
+      let statusBadge = '';
+      if (item.status === 'watching') {
+        statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold bg-amber-100 text-amber-600 dark:bg-amber-950/70 dark:text-amber-300">🍿 Sedang Ditonton</span>`;
+      } else if (item.status === 'watchlist') {
+        statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold bg-pink-100 text-pink-600 dark:bg-pink-950/70 dark:text-pink-300">🧺 Watchlist</span>`;
+      } else if (item.status === 'completed') {
+        statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold bg-emerald-100 text-emerald-600 dark:bg-emerald-950/70 dark:text-emerald-300">✅ Sudah Ditonton</span>`;
+      }
+
+      let typeBadge = '';
+      if (item.type === 'Anime') {
+        typeBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold bg-purple-100 text-purple-600 dark:bg-purple-950/70 dark:text-purple-300">Anime</span>`;
+      } else if (item.type === 'Film') {
+        typeBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold bg-blue-100 text-blue-600 dark:bg-blue-950/70 dark:text-blue-300">Film</span>`;
+      } else {
+        typeBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold bg-rose-100 text-rose-600 dark:bg-rose-950/70 dark:text-rose-300">Series</span>`;
+      }
+
+      // Middle Details
+      let progressDetail = '';
+      if (item.status === 'watching') {
+        progressDetail = `
+          <div class="flex items-center gap-2 text-xs font-semibold">
+            <span class="text-amber-500 dark:text-amber-300 font-heading">${item.episode || 'Eps. 1'}</span>
+            <span class="text-slate-300 dark:text-purple-800">•</span>
+            <button onclick="openQuickPause('${item.id}')" class="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-200 border border-amber-200 dark:border-amber-800/60 px-2.5 py-0.5 rounded-xl hover:scale-105 transition" title="Klik untuk edit pause">
+              pause di: <b>${item.pause || 'end'}</b> ✏️
+            </button>
+          </div>
+        `;
+      } else if (item.status === 'watchlist') {
+        progressDetail = `
+          <div class="text-xs font-semibold text-slate-500 dark:text-purple-300">
+            <span>Tipe: ${item.episode || 'Film'}</span>
+          </div>
+        `;
+      } else if (item.status === 'completed') {
+        const stars = '⭐'.repeat(item.rating || 5);
+        progressDetail = `
+          <div class="flex items-center gap-2 text-xs font-semibold">
+            <span class="text-emerald-500 dark:text-emerald-300 font-heading">${item.episode || 'Selesai'}</span>
+            <span class="text-amber-500">${stars} (${item.rating}/5)</span>
+          </div>
+        `;
+      }
+
+      card.innerHTML = `
+        <div class="flex items-start sm:items-center gap-3">
+          <!-- Interactive Checkbox -->
+          <div class="pt-1 sm:pt-0">
+            <input type="checkbox" 
+                   class="cute-checkbox" 
+                   ${item.status === 'completed' ? 'checked disabled' : ''} 
+                   onchange="handleChecklistToggle('${item.id}', this.checked)"
+                   title="${item.status === 'completed' ? 'Sudah Ditonton' : 'Tandai Selesai'}" />
+          </div>
+
+          <!-- Main Content Info -->
+          <div>
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <h3 class="font-heading font-bold text-slate-800 dark:text-purple-100 text-sm sm:text-base">${item.title}</h3>
+              ${typeBadge}
+              ${statusBadge}
+            </div>
+
+            <div class="flex items-center gap-3 flex-wrap">
+              ${progressDetail}
+              ${item.date ? `<span class="text-[11px] font-semibold text-slate-400 dark:text-purple-400/60">🗓️ ${item.date}</span>` : ''}
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Quick Action Controls -->
+        <div class="flex items-center justify-end gap-1.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-pink-100 dark:border-purple-900/40">
+          ${item.status === 'watching' ? `
+            <button onclick="quickAddEp('${item.id}')" class="px-3 py-1.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-heading font-bold text-xs shadow-sm shadow-amber-200 dark:shadow-none transition active:scale-95" title="+1 Episode">
+              +1 Ep 🍿
+            </button>
+          ` : ''}
+
+          ${item.status === 'watchlist' ? `
+            <button onclick="changeStatus('${item.id}', 'watching')" class="px-3 py-1.5 rounded-2xl bg-pink-100 dark:bg-purple-900/60 hover:bg-pink-200 text-pink-600 dark:text-pink-300 font-heading font-bold text-xs transition active:scale-95">
+              Mulai Nonton 🍿
+            </button>
+          ` : ''}
+
+          <button onclick="openEditModal('${item.id}')" class="w-8 h-8 rounded-2xl bg-slate-100 dark:bg-purple-900/30 text-slate-500 dark:text-purple-300 hover:bg-pink-100 hover:text-pink-500 flex items-center justify-center text-xs transition" title="Edit">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button onclick="deleteItem('${item.id}')" class="w-8 h-8 rounded-2xl bg-slate-100 dark:bg-purple-900/30 text-slate-500 dark:text-purple-300 hover:bg-rose-100 hover:text-rose-500 flex items-center justify-center text-xs transition" title="Hapus">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      `;
+
+      return card;
+    }
+
+    /* Quick Increment Episode */
+    function quickAddEp(id) {
+      const item = items.find(i => i.id === id);
+      if (!item) return;
+
+      const match = (item.episode || '').match(/\d+/);
+      if (match) {
+        const next = parseInt(match[0]) + 1;
+        item.episode = item.episode.replace(match[0], next);
+      } else {
+        item.episode = 'Eps. 2';
+      }
+      item.date = '5 Okt 2026';
+      saveData();
+      renderApp();
+      showToast(`Yeay! ${item.title} naik ke ${item.episode} 🎉`, "🍿");
+    }
+
+    /* Quick Edit Pause Timestamp Modal */
+    function openQuickPause(id) {
+      const item = items.find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById('quickPauseItemId').value = item.id;
+      document.getElementById('quickPauseTitle').innerText = item.title;
+      document.getElementById('quickPauseInput').value = item.pause || '';
+      openModal('quickPauseModal');
+    }
+
+    function handleQuickPauseSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('quickPauseItemId').value;
+      const val = document.getElementById('quickPauseInput').value.trim();
+
+      const item = items.find(i => i.id === id);
+      if (item) {
+        item.pause = val;
+        saveData();
+        renderApp();
+        showToast(`Timestamp pause diperbarui! ⏱️`, "✨");
+      }
+      closeModal('quickPauseModal');
+    }
+
+    /* Checklist Prompt Rating Workflow */
+    function handleChecklistToggle(id, isChecked) {
+      if (isChecked) {
+        const item = items.find(i => i.id === id);
+        if (!item) return;
+
+        document.getElementById('ratingItemId').value = item.id;
+        document.getElementById('ratingTitle').innerText = item.title;
+        openModal('ratingModal');
+      }
+    }
+
+    function handleRatingSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('ratingItemId').value;
+      const rating = Number(document.getElementById('ratingSelect').value);
+
+      const item = items.find(i => i.id === id);
+      if (item) {
+        item.status = 'completed';
+        item.rating = rating;
+        item.pause = 'Selesai';
+        saveData();
+        renderApp();
+        showToast(`"${item.title}" ditandai Selesai (${rating}/5 ⭐) 🎉`, "✨");
+      }
+      closeModal('ratingModal');
+    }
+
+    /* General Status Switch */
+    function changeStatus(id, newStatus) {
+      const item = items.find(i => i.id === id);
+      if (item) {
+        item.status = newStatus;
+        saveData();
+        renderApp();
+        showToast(`Status "${item.title}" diperbarui! 🍿`, "✨");
+      }
+    }
+
+    /* Modal Open & Close Utility */
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    /* Open Add Modal (Reset Form Baru) */
+    function openAddModal() {
+      document.getElementById('itemForm').reset();
+      document.getElementById('formItemId').value = '';
+      document.getElementById('modalFormTitle').innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Tambah Judul Baru ✨`;
+      toggleFormFields();
+      openModal('addModal');
+    }
+
+    /* Dynamic Form Fields Switch based on Status */
+    function toggleFormFields() {
+      const st = document.getElementById('formStatus').value;
+      if (st === 'watching') {
+        document.getElementById('pauseFieldWrapper').classList.remove('hidden');
+        document.getElementById('ratingFieldWrapper').classList.add('hidden');
+      } else if (st === 'completed') {
+        document.getElementById('pauseFieldWrapper').classList.add('hidden');
+        document.getElementById('ratingFieldWrapper').classList.remove('hidden');
+      } else {
+        document.getElementById('pauseFieldWrapper').classList.add('hidden');
+        document.getElementById('ratingFieldWrapper').classList.add('hidden');
+      }
+    }
+
+    /* Open Edit Modal */
+    function openEditModal(id) {
+      const item = items.find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById('modalFormTitle').innerHTML = `<i class="fa-solid fa-pen-nib text-pink-400"></i> Edit Judul ✨`;
+      document.getElementById('formItemId').value = item.id;
+      document.getElementById('formTitle').value = item.title;
+      document.getElementById('formStatus').value = item.status;
+      document.getElementById('formType').value = item.type;
+      document.getElementById('formEpisode').value = item.episode || '';
+      document.getElementById('formDate').value = item.date || '';
+      document.getElementById('formPause').value = item.pause || '';
+      document.getElementById('formRating').value = item.rating || 5;
+      document.getElementById('formNotes').value = item.notes || '';
+
+      toggleFormFields();
+      openModal('addModal');
+    }
+
+    /* Save / Update Form Submission */
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('formItemId').value;
+      const title = document.getElementById('formTitle').value.trim();
+      const status = document.getElementById('formStatus').value;
+      const type = document.getElementById('formType').value;
+      const episode = document.getElementById('formEpisode').value.trim();
+      const date = document.getElementById('formDate').value.trim() || '5 Okt 2026';
+      const pause = document.getElementById('formPause').value.trim();
+      const rating = Number(document.getElementById('formRating').value);
+      const notes = document.getElementById('formNotes').value.trim();
+
+      if (id) {
+        const idx = items.findIndex(i => i.id === id);
+        if (idx !== -1) {
+          items[idx] = { ...items[idx], title, status, type, episode, date, pause, rating, notes };
+          showToast(`"${title}" berhasil diedit! ✨`, "💖");
+        }
+      } else {
+        items.unshift({
+          id: 'item-' + Date.now(),
+          title, status, type, episode, date, pause, rating, notes
+        });
+        showToast(`"${title}" berhasil ditambahkan! ✨`, "🎉");
+      }
+
+      saveData();
+      renderApp();
+      closeModal('addModal');
+      document.getElementById('itemForm').reset();
+    }
+
+    /* Delete Item */
+    function deleteItem(id) {
+      const item = items.find(i => i.id === id);
+      if (item && confirm(`Hapus "${item.title}" dari jurnal kamu?`)) {
+        items = items.filter(i => i.id !== id);
+        saveData();
+        renderApp();
+        showToast(`"${item.title}" sudah dihapus 🌸`, "🗑️");
+      }
+    }
+
+    /* Toast Notification System */
+    function showToast(msg, icon = "✨") {
+      const t = document.getElementById('toast');
+      document.getElementById('toastIcon').innerText = icon;
+      document.getElementById('toastMsg').innerText = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 2500);
+    }
+  </script>
+</body>
+</html>
